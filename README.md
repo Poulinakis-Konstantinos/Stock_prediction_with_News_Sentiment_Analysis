@@ -15,3 +15,5 @@
         |--- raw_analyst_ratings.csv
         
         |--- raw_partner_headlines.csv
+
+- The dataset is downloaded from https://www.kaggle.com/miguelaenlle/massive-stock-news-analysis-db-for-nlpbacktests

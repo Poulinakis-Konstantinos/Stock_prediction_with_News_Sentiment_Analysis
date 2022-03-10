@@ -61,7 +61,6 @@ def financial_dataset(stock, cutoff) :
         
     return fin_data
 
-
 def read_rph(stock) :
     ''' Reads news relevant to 'stock' from the "raw_partner_headlines.csv" csv file. 
         Returns a dataframe in the format :[ Headline | date | stock  ] '''
@@ -82,8 +81,6 @@ def merge_fin_news(df_fin, df_news) :
     # rearrange column order
     merged_df = merged_df[['date', 'stock', 'Open', 'Close', 'Volume',  'headline', 'Price_change']]
     return merged_df
-    
-
 
 def sentim_analyzer(df, tokenizer, model):
     ''' Given a df that contains a column 'headline' with article healine texts, it runs inference on the healine with the 'model' (FinBert) 
@@ -116,3 +113,44 @@ def sentim_analyzer(df, tokenizer, model):
     except:
         pass
     return df
+
+def merge_dates(df):
+    '''
+    Given a df that contains columns [date, stock, Open, Close, Volume, headline, Positive, Negative, Neutral, Price_change],
+    take the average of Positive, Negative, Neutral sentiment scores for each date and return a df that contains each
+    date exactly one time. The return df has no column 'headline' since the scores now refer to an average of multiple
+    news headlines.
+        Parameters :
+          df : A dataframe with columns [date, stock, Open, Close, Volume, headline, Positive, Negative, Neutral, Price_change]
+
+          returns df : aggragated sentiment scores by date with columns [date, stock, Open, Close, Volume, headline, Positive, Negative, Neutral, Price_change]
+    '''
+
+    # read the full enriched dataset in your main code like below and then pass it to the function
+    # df = pd.read_csv('Financial_News/train_apple.csv', index_col=0, parse_dates=['date'])
+
+    # take the average for Positive, Negative and Neutral columns by date. Drop headline column and all other columns per date are identical.
+    dates_in_df = df['date'].unique()
+    new_df = df.copy(deep=True).head(0)  # just take the df structure with no data inside
+    new_df = new_df.drop(columns=['headline'])  # drop headline column
+
+    for date in dates_in_df:
+        sub_df = df[df['date'] == date]  # filter specific dates
+        avg_positive = sub_df['Positive'].mean()
+        avg_negative = sub_df['Negative'].mean()
+        avg_neutral = sub_df['Neutral'].mean()
+        sub_df = sub_df.drop(columns=['headline'])  # drop headline column
+
+        stock = sub_df.iloc[0]['stock']
+        open = sub_df.iloc[0]['Open']
+        close = sub_df.iloc[0]['Close']
+        volume = sub_df.iloc[0]['Volume']
+        price_change = sub_df.iloc[0]['Price_change']
+
+        sub_df = sub_df.head(0)  # empty sub_df to populate with just 1 row for each date
+        # print(sub_df)
+        sub_df.loc[0] = [date, stock, open, close, volume, avg_positive, avg_negative, avg_neutral,
+                         price_change]  # populate the row
+        # add sub_df's row to the new dataframe
+        new_df = pd.concat([new_df, sub_df], axis=0, ignore_index=True)
+    return(new_df)
