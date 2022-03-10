@@ -114,9 +114,20 @@ def sentim_analyzer(df, tokenizer, model):
         pass
     return df
 
-def merge_dates:
-    # read the full enriched dataset
-    df = pd.read_csv('Financial_News/train_apple.csv', index_col=0, parse_dates=['date'])
+def merge_dates(df):
+    '''
+    Given a df that contains columns [date, stock, Open, Close, Volume, headline, Positive, Negative, Neutral, Price_change],
+    take the average of Positive, Negative, Neutral sentiment scores for each date and return a df that contains each
+    date exactly one time. The return df has no column 'headline' since the scores now refer to an average of multiple
+    news headlines.
+        Parameters :
+          df : A dataframe with columns [date, stock, Open, Close, Volume, headline, Positive, Negative, Neutral, Price_change]
+
+          returns df : aggragated sentiment scores by date with columns [date, stock, Open, Close, Volume, headline, Positive, Negative, Neutral, Price_change]
+    '''
+
+    # read the full enriched dataset in your main code like below and then pass it to the function
+    # df = pd.read_csv('Financial_News/train_apple.csv', index_col=0, parse_dates=['date'])
 
     # take the average for Positive, Negative and Neutral columns by date. Drop headline column and all other columns per date are identical.
     dates_in_df = df['date'].unique()
@@ -142,3 +153,4 @@ def merge_dates:
                          price_change]  # populate the row
         # add sub_df's row to the new dataframe
         new_df = pd.concat([new_df, sub_df], axis=0, ignore_index=True)
+    return(new_df)
