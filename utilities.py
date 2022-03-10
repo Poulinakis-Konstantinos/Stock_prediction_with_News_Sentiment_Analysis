@@ -7,6 +7,7 @@ import pandas_datareader
 from pandas_datareader import data as pdr
 import yfinance as yf
 from torch.nn.functional import softmax
+from tqdm import tqdm
 
 yf.pdr_override() # <== that's all it takes :-)
 
@@ -61,18 +62,42 @@ def financial_dataset(stock, cutoff) :
         
     return fin_data
 
-def read_rph(stock) :
-    ''' Reads news relevant to 'stock' from the "raw_partner_headlines.csv" csv file. 
+def read_news(stock):
+    def read_rph(stock) :
+        ''' Reads news relevant to 'stock' from the "raw_partner_headlines.csv" csv file. 
+            Returns a dataframe in the format :[ Headline | date | stock  ] '''
+
+        csv_path = 'Financial_News/raw_partner_headlines.csv'
+        arp = pd.read_csv(csv_path)
+        arp = arp.drop(columns=['Unnamed: 0', 'url', 'publisher'], axis=1)
+        # Format the date column to match financial dataset
+        arp['date'] = arp['date'].apply(lambda x: x.split(' ')[0] )
+        news = arp[arp['stock'] == stock]
+        print(f"The bot found {news.shape[0]} headlines from raw_partner_headlines.csv, regarding {stock} stock")
+        return news
+
+    def read_arp(stock) :
+        ''' Reads news relevant to 'stock' from the "analyst_rating_processed.csv" csv file. 
         Returns a dataframe in the format :[ Headline | date | stock  ] '''
+        csv_path = 'Financial_News/analyst_ratings_processed.csv'
+        arp = pd.read_csv(csv_path)
+        arp = arp.drop(columns=['Unnamed: 0'], axis=1)
+        # pick the stock headlines
+        arp = arp[arp['stock'] == stock]
+        # Format the date column to match financial dataset (only keep date, not time)
+        arp['date'] = arp['date'].apply(lambda x: str(x).split(' ')[0] )
+        # Rename column title to headline to match other csv
+        arp.rename({'title': 'headline'}, axis=1, inplace=True)
+        news = arp
+        print(f"The bot found {news.shape[0]} headlines from raw_partner_headlines.csv, regarding {stock} stock")
+        return news
     
-    csv_path = 'Financial_News/raw_partner_headlines.csv'
-    arp = pd.read_csv(csv_path)
-    arp = arp.drop(columns=['Unnamed: 0', 'url', 'publisher'], axis=1)
-    # Format the date column to match financial dataset
-    arp['date'] = arp['date'].apply(lambda x: x.split(' ')[0] )
-    news = arp[arp['stock'] == stock]
-    print(f"Read {news.shape[0]} headlines from raw_partner_headlines.csv, regarding {stock} stock")
+    arp = read_arp(stock)
+    rph = read_rph(stock)
+    news = pd.concat([rph, arp], ignore_index=True)
+    print(f"The bot found {news.shape[0]} headlines in total, regarding {stock} stock")
     return news
+    
 
 def merge_fin_news(df_fin, df_news) :
     ''' Merges the financial data dataframe with the news dataframe and rearranges the column order '''
@@ -93,7 +118,7 @@ def sentim_analyzer(df, tokenizer, model):
           
           returns df : The initial dataframe with the 3 sentiment features as columns for each headline'''
     
-    for i in df.index :
+    for i in tqdm(df.index) :
         try:
             headline = df.loc[i, 'headline']
         except:
@@ -153,4 +178,5 @@ def merge_dates(df):
                          price_change]  # populate the row
         # add sub_df's row to the new dataframe
         new_df = pd.concat([new_df, sub_df], axis=0, ignore_index=True)
+    print(f" Dataframe now contains sentiment score for {new_df.shape[0]} different dates.")
     return(new_df)
