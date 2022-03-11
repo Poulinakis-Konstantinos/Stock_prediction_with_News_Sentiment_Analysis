@@ -19,7 +19,7 @@ def financial_dataset(stock, cutoff) :
     
     fin_data = pdr.get_data_yahoo(stock, start="2010-01-01", end="2021-01-01")
     
-    print(f"{stock} dataframe dimensions ", fin_data.shape)
+    print(f"{stock} financial dataframe dimensions ", fin_data.shape)
     
     # initialize price_change column 
     fin_data['Price_change'] = 0
@@ -89,7 +89,7 @@ def read_news(stock):
         # Rename column title to headline to match other csv
         arp.rename({'title': 'headline'}, axis=1, inplace=True)
         news = arp
-        print(f"The bot found {news.shape[0]} headlines from raw_partner_headlines.csv, regarding {stock} stock")
+        print(f"The bot found {news.shape[0]} headlines from analyst_ratings_processed.csv, regarding {stock} stock")
         return news
     
     arp = read_arp(stock)
