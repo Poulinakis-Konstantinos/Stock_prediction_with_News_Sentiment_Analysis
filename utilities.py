@@ -11,24 +11,31 @@ from tqdm import tqdm
 
 yf.pdr_override() # <== that's all it takes :-)
 
-def financial_dataset(stock, cutoff) :
+def financial_dataset(stock, num_of_labels=2, cutoff=0.25,
+                      start_date="2010-01-01", end_date="2021-01-01") :
     ''' Downloads financial data for a stock and process it in the desired format
         Parameters :
           stock(str) : The desired stock's code
-          cutoff(float) : A float indicating a percentage under which no price change is considered increase or decrease eg. 0.25 = 0.25% price change from close-to-close'''
-    
-    fin_data = pdr.get_data_yahoo(stock, start="2010-01-01", end="2021-01-01")
+          cutoff(float) : A float indicating a percentage under which no price change is considered                                 increase or decrease eg. 0.25 = 0.25% price change from close-to-close
+          num_of_labels(2 or 3) : Number of labels to use. 2 = [Increase,Decrease]. 
+                                  3=[Increase, Decrease, Sideways]
+          start_date(str) : "year-month-day" The day data collection will start .
+          end_date(str) : "year-month-day" The day data collection will stop .    '''
+    # parameter value check
+    if (num_of_labels < 2 or num_of_labels > 3): 
+        return print('Number of labels can be either 2 or 3')
+                                                            
+    fin_data = pdr.get_data_yahoo(stock, start=start_date, end=end_date)
     
     print(f"{stock} financial dataframe dimensions ", fin_data.shape)
     
     # initialize price_change column 
-    fin_data['Price_change'] = 0
+    fin_data['Price_change'] = 1
     fin_data['date'] = 0
     dates = fin_data.index
     yesterday = str(dates[0].date())
 
     # How much should the price change in abs value to be considered increase/decrease.  
-    cutoff = 0.25
     for date in dates[1:] :
         today = str(date.date())
 
@@ -36,17 +43,23 @@ def financial_dataset(stock, cutoff) :
         today_pr = fin_data.loc[today, 'Close']
         diff = 100 * (today_pr - yesterday_pr)/yesterday_pr
 
-
-        if (diff > cutoff) :
-            # price increase
-            price_change = +1
-        elif (diff < -cutoff) :
-            # price decrease
-            price_change = -1
-        else:
-            # almost steady price
-            price_change = 0 
-
+        if (num_of_labels == 3) :
+            if (diff > cutoff) :
+                # price increase
+                price_change = +1
+            elif (diff < -cutoff) :
+                # price decrease
+                price_change = -1
+            else:
+                # almost steady price
+                price_change = 0 
+        elif (num_of_labels == 2 ): 
+            if (diff > 0 ) : 
+                # price increase
+                price_change = +1
+            elif (diff <= 0 ) :
+                price_change = -1 
+                                                                                                       
         yesterday = today
         fin_data.loc[today,'Price_change'] = price_change
         fin_data.loc[today,'date'] = today
