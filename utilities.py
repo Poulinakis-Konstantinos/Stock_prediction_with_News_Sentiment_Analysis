@@ -112,10 +112,11 @@ def read_news(stock):
     return news
     
 
-def merge_fin_news(df_fin, df_news) :
-    ''' Merges the financial data dataframe with the news dataframe and rearranges the column order '''
+def merge_fin_news(df_fin, df_news, how='inner') :
+    ''' Merges the financial data dataframe with the news dataframe and rearranges the column order
+        how(str) : Merging technique : 'inner', 'outer' etc.. (check pd.merge documentation)      '''
     # merge on date column and only for their intersection
-    merged_df = df_fin.merge(df_news, on='date', how='inner')
+    merged_df = df_fin.merge(df_news, on='date', how=how)
     # rearrange column order
     merged_df = merged_df[['date', 'stock', 'Open', 'Close', 'Volume',  'headline', 'Price_change']]
     return merged_df
