@@ -17,3 +17,7 @@
         |--- raw_partner_headlines.csv
 
 - The dataset is downloaded from https://www.kaggle.com/miguelaenlle/massive-stock-news-analysis-db-for-nlpbacktests
+
+
+Find short blog tutorials:
+1.) https://medium.com/@poulinakis.kon/stocks-news-sentiment-analysis-with-deep-learning-transformers-and-machine-learning-cdcdb827fc06
