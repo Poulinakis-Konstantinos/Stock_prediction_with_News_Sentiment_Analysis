@@ -20,4 +20,5 @@
 
 
 Find short blog tutorials:
+
 1.) https://medium.com/@poulinakis.kon/stocks-news-sentiment-analysis-with-deep-learning-transformers-and-machine-learning-cdcdb827fc06
