@@ -24,3 +24,9 @@ Find short blog tutorials:
 1.) https://medium.com/@poulinakis.kon/stocks-news-sentiment-analysis-with-deep-learning-transformers-and-machine-learning-cdcdb827fc06
 
 2.) https://medium.com/mlearning-ai/predict-sp500-stock-price-with-python-machine-learning-sentiment-analysis-a296dc276353
+
+</br>
+
+ <a href="https://trackgit.com">
+<img src="https://us-central1-trackgit-analytics.cloudfunctions.net/token/ping/lcze6svx6lsvj0zeuvsl" alt="trackgit-views" />
+</a>
